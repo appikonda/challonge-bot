@@ -1,10 +1,12 @@
 {
-  "name": "soccer-bot",
+  "name": "challonge-bot",
   "version": "1.0.0",
-  "description": "challonge bot fro telegram",
+  "description": "challonge soccer bot for telegram",
   "main": "index.js",
+  "github" :"https://github.com/appikonda/challonge-bot",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "author": "sandeep",
   "license": "ISC",
@@ -13,7 +15,6 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "nodemon": "^2.0.1",
-    "react-bootstrap": "^1.0.0-beta.16",
     "telegraf": "^3.33.3"
   }
 }
