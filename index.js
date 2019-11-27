@@ -21,7 +21,7 @@ bot.hears('/table', async (ctx) => {
   // step 3 - mashup info
   const table = getTable(players, matches, playerDetails);
   const formattedTable = formatTable(table);
-  ctx.reply(formattedTable);
+  ctx.replyWithMarkdown(formattedTable);
 });
 bot.launch();
 
@@ -96,14 +96,20 @@ function getTable(players, matches, playerDetails){
 }
 
 function formatTable(table){
-  let formattedTable = '';
+  let formattedTable = '```';
+  formattedTable += '||  name    |w|d|l|gf|ga|';
+  formattedTable += "\n";
+  formattedTable += '---------------------------';
+  formattedTable += "\n";
   for( let playerId of Object.keys(table)){
     const playerDetails = table[playerId];
-    formattedTable +=  [playerDetails.name, playerDetails.w, playerDetails.d, playerDetails.l, playerDetails.gf, playerDetails.ga].join('|');
+    formattedTable += '|';
+    formattedTable +=  [playerDetails.name.split('(')[0], playerDetails.w, playerDetails.d, playerDetails.l, playerDetails.gf, playerDetails.ga].join('|');
+    formattedTable += '|';
     formattedTable += "\n";
 
   }
-
+  formattedTable += '```';
   return formattedTable;
 }
 
