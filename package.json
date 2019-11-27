@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "challonge soccer bot for telegram",
   "main": "index.js",
-  "github" :"https://github.com/appikonda/challonge-bot",
+  "github": "https://github.com/appikonda/challonge-bot",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "sandeep",
   "license": "ISC",
