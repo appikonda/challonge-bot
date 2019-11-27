@@ -1,4 +1,5 @@
 require('dotenv').config();
+var _ = require('lodash');
 
 const challonge = require('challonge');
 const Telegraf = require('telegraf');
@@ -13,14 +14,14 @@ bot.hears('/table', async (ctx) => {
   // implement me
   // step 1 - get players
   const players = await getPlayers();
-  //console.log(players)
   const playerDetails = buildPlayerDetails(players);
- // console.log(playerDetails)
   // step 2 - get matches
   const matches = await getMatches();
   // step 3 - mashup info
-  const table = getTable(players, matches, playerDetails);
-  const formattedTable = formatTable(table);
+  const table = getTable(matches, playerDetails);
+  const sortedTable = sortTable(table);
+  const longestNameLength = findLongestNameLength(sortedTable);
+  const formattedTable = formatTable(sortedTable, longestNameLength);
   ctx.replyWithMarkdown(formattedTable);
 });
 bot.launch();
@@ -61,11 +62,9 @@ async function getMatches() {
 
 function buildPlayerDetails(players){
   const playerDetails = {};
-  //console.log(Object.keys(players));
   for(let index  of Object.keys(players)){
     const player = players[index].participant
-    playerDetails[player.id] = { name: player.name, w: 0, l: 0, d: 0, ga: 0, gf: 0 };
-    //console.log(playerDetails)
+    playerDetails[player.id] = { name: player.name.split('(')[0], w: 0, l: 0, d: 0, ga: 0, gf: 0, pts: 0 };
   }
   
 
@@ -73,8 +72,7 @@ function buildPlayerDetails(players){
 }
 
 
-function getTable(players, matches, playerDetails){
-
+function getTable( matches, playerDetails){
   for (let index of Object.keys(matches)){
     const match = matches[index].match;
     if(match.state == 'complete'){
@@ -95,20 +93,19 @@ function getTable(players, matches, playerDetails){
   return playerDetails;
 }
 
-function formatTable(table){
+function formatTable(sortedTable, longestNameLength){
+ 
   let formattedTable = '```';
-  formattedTable += '||  name    |w|d|l|gf|ga|';
+  formattedTable += '||  name    |w-d-l|gf|ga|pts|';
   formattedTable += "\n";
   formattedTable += '---------------------------';
   formattedTable += "\n";
-  for( let playerId of Object.keys(table)){
-    const playerDetails = table[playerId];
+  sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.split('(')[0], playerDetails.w, playerDetails.d, playerDetails.l, playerDetails.gf, playerDetails.ga].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, playerDetails.gf, playerDetails.ga, playerDetails.pts].join('|');
     formattedTable += '|';
     formattedTable += "\n";
-
-  }
+  });
   formattedTable += '```';
   return formattedTable;
 }
@@ -122,7 +119,6 @@ function determineMatchoutcome(match){
     outcome.loserId = match.loserId;
     outcome.result = 'noTie';
   }else{
-    console.log(match)
     outcome.firstPlayer = match.player1Id;
     outcome.secondPlayer = match.player2Id;
     outcome.result = 'tie';
@@ -131,27 +127,45 @@ function determineMatchoutcome(match){
   return outcome;
 }
 
-function updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, win, draw, loss){
+function updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, win, draw, loss, points){
   const currPlayer = playerDetails[playerId];
-  //console.log(Object.keys(playerDetails), playerId);
   currPlayer.gf += goalsFor;
   currPlayer.ga += goalsAgainst;
   currPlayer.w += win;
   currPlayer.d += draw;
   currPlayer.l += loss;
+  currPlayer.pts += points;
 }
 
 
 function updateWinner(playerDetails, playerId, goalsFor, goalsAgainst){
-  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 1, 0, 0);
+  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 1, 0, 0, 3);
 
 }
 
 function updateLoser(playerDetails, playerId, goalsFor, goalsAgainst){
-  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 0, 0, 1);
+  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 0, 0, 1, 0);
 }
 
 function updateTiedPlayers(playerDetails, firstPlayerId, secondPlayerId, goals){
-  updatePlayerDetails(playerDetails, firstPlayerId, goals, goals, 0, 1, 0);
-  updatePlayerDetails(playerDetails, secondPlayerId, goals, goals, 0, 1, 0);
+  updatePlayerDetails(playerDetails, firstPlayerId, goals, goals, 0, 1, 0, 1);
+  updatePlayerDetails(playerDetails, secondPlayerId, goals, goals, 0, 1, 0, 1);
 }
+
+function sortTable(table){
+  let tableValues =Object.values(table)
+  let sortedTable = _.orderBy(tableValues, ['pts', 'w','l' ], ['desc'] ) 
+  return sortedTable;
+
+}
+
+function findLongestNameLength(playerDetails){
+  let longest = 0; 
+  playerDetails.forEach((player) => {
+    longest =Math.max(player.name.length, longest);
+  })
+  return longest;
+
+}
+
+
