@@ -1,14 +1,24 @@
 require('dotenv').config();
-var _ = require('lodash');
+const _ = require('lodash');
+const express = require('express');
+const expressApp = express();
 
 const challonge = require('challonge');
 const Telegraf = require('telegraf');
+
+const API_TOKEN = process.env.telegram_bot_key;
+const PORT = process.env.PORT 
+const URL = process.env.URL 
 
 const client = challonge.createClient({
   apiKey: process.env.challonge_api_key
 });
 
-const bot = new Telegraf(process.env.telegram_bot_key);
+const bot = new Telegraf(API_TOKEN);
+// for heroku set up
+bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`);
+expressApp.use(bot.webhookCallback(`/bot${API_TOKEN}`));
+
 bot.start((ctx) => ctx.reply('Welcome!'));
 bot.hears('/table', async (ctx) => {
   // implement me
@@ -169,3 +179,10 @@ function findLongestNameLength(playerDetails){
 }
 
 
+// and at the end just start server on PORT
+expressApp.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+expressApp.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
