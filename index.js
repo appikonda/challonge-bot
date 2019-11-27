@@ -15,12 +15,10 @@ function getPlayer(callback) {
     });
 }
 getPlayer((err, data) => {
-    console.log("player data");
     if (data) {
         let playerKeys = Object.keys(data);
         playerKeys.map(key => {
             let playerInfomation = data[key].participant
-            console.log(playerInfomation.name);
             // create player details
             let playerDetails = {
                 name: playerInfomation.name,
@@ -35,8 +33,7 @@ getPlayer((err, data) => {
         // Get match information
         client.matches.index({
             id: process.env.tournament_id,
-            callback: (err, matchData) => {
-                //  console.log(matchData)                 
+            callback: (err, matchData) => {                
                 if (matchData) {
                     let matches = Object.keys(matchData);
                     matches.map(key => {
@@ -48,8 +45,8 @@ getPlayer((err, data) => {
                             let score = matchInfo.scoresCsv.split("-");
                             let player1score = score[0];
                             let player2score = score[1];
-                            console.log(typeof (matchInfo.winnerId) + '' + matchInfo.winnerId)
-                            console.log(typeof (player1Id) + '' + player1Id)
+                          // console.log(typeof (matchInfo.winnerId) + '' + matchInfo.winnerId)
+                           // console.log(typeof (player1Id) + '' + player1Id)
 
                             switch (matchInfo.winnerId) {
                                 case player1Id:
@@ -89,10 +86,6 @@ getPlayer((err, data) => {
                         table += (playerinfo.name.slice(0, 8) + ' | ' + (playerinfo.goalsFor) + ' | ' + parseInt(playerinfo.goalsAgainst) + ' | ' + playerinfo.won + ' | ' + playerinfo.lost + ' | ' + playerinfo.draw)
                         table += ('\n')
                     }
-                  
-                    console.log(table);
-
-
                     //telegram call
                     const bot = new Telegraf(process.env.telegram_bot_key);
                     bot.start((ctx) => ctx.replyWithHTML(HTML))
@@ -115,47 +108,5 @@ function updatePlayerDetails(pid, gs, ga, w, l, d) {
     statsMap.get(pid).won = player.won + w;
     statsMap.get(pid).lost = player.lost + l;
     statsMap.get(pid).draw = player.draw + d;
-    console.log(statsMap.get(pid))
+  //  console.log(statsMap.get(pid))
 }
-
-
-
-
-//---------------------------------------------------------
-
-
-
-const PLAYER_NAME = [{
-        id: 109723661,
-        name: 'Srikanth (Atletico Madrid)'
-    },
-    {
-        id: 109723744,
-        name: 'Macha (FC Barcelona)'
-    },
-    {
-        id: 109723677,
-        name: 'Aditya (Real Madrid)'
-    },
-    {
-        id: 109723671,
-        name: 'Mohnish (Paris Saint-Germain)'
-    },
-    {
-        id: 109723683,
-        name: 'Sandeep (Liverpool)'
-    },
-    {
-        id: 109723693,
-        name: 'Ujwal (Piemonte Calcio)'
-    },
-    {
-        id: 109723697,
-        name: 'Jeswanth (Bayern Munchen)'
-    },
-    {
-        id: 109723709,
-        name: 'Shanthan (Chelsea)'
-    }
-
-]
