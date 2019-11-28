@@ -1,5 +1,5 @@
 require('dotenv').config();
-var http = require("http");
+
 const _ = require('lodash');
 const express = require('express');
 const expressApp = express();
@@ -192,7 +192,3 @@ expressApp.get('/', (req, res) => {
 expressApp.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-// unidle heroku
-setInterval(function() {
-    http.get("https://lit-wildwood-26377.herokuapp.com/");
-}, 600000); // every 10 minutes (600000)
