@@ -1,4 +1,5 @@
 require('dotenv').config();
+var http = require("http");
 const _ = require('lodash');
 const express = require('express');
 const expressApp = express();
@@ -104,15 +105,16 @@ function getTable( matches, playerDetails){
 }
 
 function formatTable(sortedTable, longestNameLength){
+  const scoreLength = 2;
  
   let formattedTable = '```';
-  formattedTable += '||  name    |w-d-l|gf|ga|pts|';
+  formattedTable += '||  name    |w-d-l|gf|ga|pt|';
   formattedTable += "\n";
   formattedTable += '---------------------------';
   formattedTable += "\n";
   sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, playerDetails.gf, playerDetails.ga, playerDetails.pts].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, padInt(playerDetails.gf), padInt(playerDetails.ga), padInt(playerDetails.pts)].join('|');
     formattedTable += '|';
     formattedTable += "\n";
   });
@@ -178,6 +180,10 @@ function findLongestNameLength(playerDetails){
 
 }
 
+function padInt(number) {
+  return (number < 10 ? '0' : '') + number
+}
+
 
 // and at the end just start server on PORT
 expressApp.get('/', (req, res) => {
@@ -186,3 +192,7 @@ expressApp.get('/', (req, res) => {
 expressApp.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+// unidle heroku
+setInterval(function() {
+    http.get("https://lit-wildwood-26377.herokuapp.com/");
+}, 600000); // every 10 minutes (600000)
