@@ -165,7 +165,7 @@ function updateTiedPlayers(playerDetails, firstPlayerId, secondPlayerId, goals){
 function sortTable(table){
   let tableValues =Object.values(table)
   console.log(tableValues)
-  let sortedTable = _.orderBy(tableValues, ['pts', 'gd'], ['desc', 'desc'] ) 
+  let sortedTable = _.orderBy(tableValues, ['pts', 'gd', 'gf'], ['desc', 'desc', 'desc'] ) 
   console.log(sortedTable)
   return sortedTable;
 
