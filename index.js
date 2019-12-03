@@ -37,17 +37,13 @@ bot.hears('/fixtures', async (ctx) => {
   // implement me
   // step 1 - get players
   const players = await getPlayers();
-  const playerDetails = buildPlayerDetails(players);
-  // step 2 - get matches
   const matches = await getMatches();
 
   // step 3 - mashup info
   const upcomingGames = getFixtures(players, matches);
-  //const table = getTable(matches, playerDetails);
-  //const sortedTable = sortTable(table);
-  //const longestNameLength = findLongestNameLength(sortedTable);
-  //const formattedTable = formatTable(sortedTable, longestNameLength);
-  ctx.replyWithMarkdown(formattedTable);
+  
+ const formattedFixtures = formatFixtures(upcomingGames);
+  ctx.replyWithMarkdown(formattedFixtures);
 });
 
 bot.launch();
@@ -209,11 +205,38 @@ function getFixtures(players, matches){
     if(i<10 && match.state == 'open' ){
       const firstPlayerName = getPlayerName(players, match.player1Id);
       const secondPlayerName = getPlayerName(players, match.player2Id);
-      fixtures.push(createFixture(firstPlayerName, secondPlayerName, match.roud))
-
+      fixtures.push({home:firstPlayerName, away: secondPlayerName, round: match.round });
+      i++
     }
   }
-   
+   return fixtures;
+}
+
+function getPlayerName(players, pId){
+  let playerName = ''
+  for(let index  of Object.keys(players)){
+    const player = players[index].participant
+    if(player.id == pId){
+      playerName = player.name.split('(')[0];
+    }
+  }  
+  return playerName;
+}
+
+function formatFixtures(upcomingGames){
+  let formattedFixtures = '```';
+  formattedFixtures += '  Upcoming Matches          ';
+  formattedFixtures += "\n";
+  formattedFixtures += '---------------------------';
+  formattedFixtures += "\n";
+  
+   upcomingGames.forEach((game) =>{
+    formattedFixtures += ['Rd-'+game.round+' : '+game.home+'vs '+game.away ];
+    formattedFixtures += "\n"
+    
+  }); 
+  formattedFixtures += '```';
+  return formattedFixtures;
 }
 
 // and at the end just start server on PORT
