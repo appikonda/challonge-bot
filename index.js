@@ -105,13 +105,13 @@ function formatTable(sortedTable, longestNameLength){
   const scoreLength = 2;
  
   let formattedTable = '```';
-  formattedTable += '|  player  |w-d-l|gf|ga|pt|gd|';
+  formattedTable += '|  player  |w-d-l|gf|ga|pt|';
   formattedTable += "\n";
   formattedTable += '---------------------------';
   formattedTable += "\n";
   sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, padInt(playerDetails.gf), padInt(playerDetails.ga), padInt(playerDetails.pts), playerDetails.gd].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, padInt(playerDetails.gf), padInt(playerDetails.ga), padInt(playerDetails.pts)].join('|');
     formattedTable += '|';
     formattedTable += "\n";
   });
