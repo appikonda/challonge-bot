@@ -32,6 +32,24 @@ bot.hears('/table', async (ctx) => {
   const formattedTable = formatTable(sortedTable, longestNameLength);
   ctx.replyWithMarkdown(formattedTable);
 });
+
+bot.hears('/fixtures', async (ctx) => {
+  // implement me
+  // step 1 - get players
+  const players = await getPlayers();
+  const playerDetails = buildPlayerDetails(players);
+  // step 2 - get matches
+  const matches = await getMatches();
+
+  // step 3 - mashup info
+  const upcomingGames = getFixtures(players, matches);
+  //const table = getTable(matches, playerDetails);
+  //const sortedTable = sortTable(table);
+  //const longestNameLength = findLongestNameLength(sortedTable);
+  //const formattedTable = formatTable(sortedTable, longestNameLength);
+  ctx.replyWithMarkdown(formattedTable);
+});
+
 bot.launch();
 
 async function getPlayers() {
@@ -164,9 +182,7 @@ function updateTiedPlayers(playerDetails, firstPlayerId, secondPlayerId, goals){
 
 function sortTable(table){
   let tableValues =Object.values(table)
-  console.log(tableValues)
   let sortedTable = _.orderBy(tableValues, ['pts', 'gd', 'gf'], ['desc', 'desc', 'desc'] ) 
-  console.log(sortedTable)
   return sortedTable;
 
 }
@@ -184,6 +200,21 @@ function padInt(number) {
   return (number < 10 ? '0' : '') + number
 }
 
+
+function getFixtures(players, matches){
+  let fixtures = [];
+  let i =0
+  for (let index of Object.keys(matches)){
+    const match = matches[index].match;
+    if(i<10 && match.state == 'open' ){
+      const firstPlayerName = getPlayerName(players, match.player1Id);
+      const secondPlayerName = getPlayerName(players, match.player2Id);
+      fixtures.push(createFixture(firstPlayerName, secondPlayerName, match.roud))
+
+    }
+  }
+   
+}
 
 // and at the end just start server on PORT
 expressApp.get('/', (req, res) => {
