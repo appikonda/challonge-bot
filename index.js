@@ -9,7 +9,6 @@ const Telegraf = require('telegraf');
 
 const API_TOKEN = process.env.telegram_bot_key;
 const PORT = process.env.PORT 
-const URL = process.env.URL 
 
 const client = challonge.createClient({
   apiKey: process.env.challonge_api_key
@@ -33,7 +32,7 @@ bot.hears('/table', async (ctx) => {
   ctx.replyWithMarkdown(formattedTable);
 });
 
-bot.hears('/fixtures', async (ctx) => {
+bot.hears('/next', async (ctx) => {
   // implement me
   // step 1 - get players
   const players = await getPlayers();
@@ -116,8 +115,6 @@ function getTable( matches, playerDetails){
 }
 
 function formatTable(sortedTable, longestNameLength){
-  const scoreLength = 2;
- 
   let formattedTable = '```';
   formattedTable += '|  player  |w-d-l|gf|ga|pt|';
   formattedTable += "\n";
@@ -202,7 +199,7 @@ function getFixtures(players, matches){
   let i =0
   for (let index of Object.keys(matches)){
     const match = matches[index].match;
-    if(i<10 && match.state == 'open' ){
+    if(i<5 && match.state == 'open' ){
       const firstPlayerName = getPlayerName(players, match.player1Id);
       const secondPlayerName = getPlayerName(players, match.player2Id);
       fixtures.push({home:firstPlayerName, away: secondPlayerName, round: match.round });
@@ -231,7 +228,7 @@ function formatFixtures(upcomingGames){
   formattedFixtures += "\n";
   
    upcomingGames.forEach((game) =>{
-    formattedFixtures += ['Rd-'+game.round+' : '+game.home+'vs '+game.away ];
+    formattedFixtures += ['R'+game.round+'-'+game.home+'(H): '+game.away ];
     formattedFixtures += "\n"
     
   }); 
