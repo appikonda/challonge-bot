@@ -16,9 +16,6 @@ const client = challonge.createClient({
 });
 
 const bot = new Telegraf(API_TOKEN);
-// for heroku set up
-bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`);
-expressApp.use(bot.webhookCallback(`/bot${API_TOKEN}`));
 
 bot.start((ctx) => ctx.reply('Welcome!'));
 bot.hears('/table', async (ctx) => {
@@ -75,7 +72,7 @@ function buildPlayerDetails(players){
   const playerDetails = {};
   for(let index  of Object.keys(players)){
     const player = players[index].participant
-    playerDetails[player.id] = { name: player.name.split('(')[0], w: 0, l: 0, d: 0, ga: 0, gf: 0, pts: 0 };
+    playerDetails[player.id] = { name: player.name.split('(')[0], w: 0, l: 0, d: 0, ga: 0, gf: 0, gd: 0, pts: 0 };
   }
   
 
@@ -108,13 +105,13 @@ function formatTable(sortedTable, longestNameLength){
   const scoreLength = 2;
  
   let formattedTable = '```';
-  formattedTable += '||  name    |w-d-l|gf|ga|pt|';
+  formattedTable += '|  player  |w-d-l|gf|ga|pt|gd|';
   formattedTable += "\n";
   formattedTable += '---------------------------';
   formattedTable += "\n";
   sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, padInt(playerDetails.gf), padInt(playerDetails.ga), padInt(playerDetails.pts)].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, padInt(playerDetails.gf), padInt(playerDetails.ga), padInt(playerDetails.pts), playerDetails.gd].join('|');
     formattedTable += '|';
     formattedTable += "\n";
   });
@@ -139,34 +136,37 @@ function determineMatchoutcome(match){
   return outcome;
 }
 
-function updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, win, draw, loss, points){
+function updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, win, draw, loss, goalsDiff, points){
   const currPlayer = playerDetails[playerId];
   currPlayer.gf += goalsFor;
   currPlayer.ga += goalsAgainst;
   currPlayer.w += win;
   currPlayer.d += draw;
   currPlayer.l += loss;
+  currPlayer.gd += goalsDiff;
   currPlayer.pts += points;
 }
 
 
 function updateWinner(playerDetails, playerId, goalsFor, goalsAgainst){
-  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 1, 0, 0, 3);
+  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 1, 0, 0, (goalsFor-goalsAgainst), 3);
 
 }
 
 function updateLoser(playerDetails, playerId, goalsFor, goalsAgainst){
-  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 0, 0, 1, 0);
+  updatePlayerDetails(playerDetails, playerId, goalsFor, goalsAgainst, 0, 0, 1, (goalsFor-goalsAgainst), 0);
 }
 
 function updateTiedPlayers(playerDetails, firstPlayerId, secondPlayerId, goals){
-  updatePlayerDetails(playerDetails, firstPlayerId, goals, goals, 0, 1, 0, 1);
-  updatePlayerDetails(playerDetails, secondPlayerId, goals, goals, 0, 1, 0, 1);
+  updatePlayerDetails(playerDetails, firstPlayerId, goals, goals, 0, 1, 0, 0, 1);
+  updatePlayerDetails(playerDetails, secondPlayerId, goals, goals, 0, 1, 0, 0, 1);
 }
 
 function sortTable(table){
   let tableValues =Object.values(table)
-  let sortedTable = _.orderBy(tableValues, ['pts', 'w','l' ], ['desc'] ) 
+  console.log(tableValues)
+  let sortedTable = _.orderBy(tableValues, ['pts', 'gd'], ['desc', 'desc'] ) 
+  console.log(sortedTable)
   return sortedTable;
 
 }
