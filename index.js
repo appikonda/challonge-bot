@@ -31,6 +31,20 @@ bot.hears('/table', async (ctx) => {
   const formattedTable = formatTable(sortedTable, longestNameLength);
   ctx.replyWithMarkdown(formattedTable);
 });
+bot.hears('/results', async (ctx) => {
+  // implement me
+  // step 1 - get players
+  const players = await getPlayers();
+  const playerDetails = buildPlayerDetails(players);
+  // step 2 - get matches
+  const matches = await getMatches();
+  // step 3 - mashup info
+  const table = getTable(matches, playerDetails);
+  const sortedTable = sortTable(table);
+  //const longestNameLength = findLongestNameLength(sortedTable);
+  const result = getChampions(sortedTable);
+  ctx.replyWithMarkdown(result);
+});
 
 bot.hears('/next', async (ctx) => {
   // implement me
@@ -40,8 +54,7 @@ bot.hears('/next', async (ctx) => {
 
   // step 3 - mashup info
   const upcomingGames = getFixtures(players, matches);
-  
- const formattedFixtures = formatFixtures(upcomingGames);
+  const formattedFixtures = formatFixtures(upcomingGames);
   ctx.replyWithMarkdown(formattedFixtures);
 });
 
@@ -64,6 +77,7 @@ async function getPlayers() {
 
 async function getMatches() {
   return new Promise((resolve, reject) => { 
+    
     client.matches.index({
       id: process.env.tournament_id,
       callback: function(error, matches){
@@ -79,6 +93,32 @@ async function getMatches() {
 
   });
   
+}
+async function getTournament() {
+  return new Promise((resolve, reject) => {
+    client.tournaments.index({
+      //id: process.env.tournament_id,
+      callback: (err, tournament) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(tournament);
+        }
+      }
+    });
+  });
+}
+
+function getChampions(sortedTable){
+   let results ="```"
+   results += "\n"
+   results += "FIFA 20 League "
+   results += "\n"
+   results += "Champion: "+sortedTable[0].name;
+   results += "\n"
+   results += "Runner up: "+sortedTable[1].name;
+   results += "```"
+  return (results)
 }
 
 function buildPlayerDetails(players){
@@ -222,7 +262,8 @@ function getPlayerName(players, pId){
 
 function formatFixtures(upcomingGames){
   let formattedFixtures = '```';
-  formattedFixtures += '  Upcoming Matches          ';
+  if(upcomingGames){
+    formattedFixtures += '  Upcoming Matches          ';
   formattedFixtures += "\n";
   formattedFixtures += '---------------------------';
   formattedFixtures += "\n";
@@ -231,7 +272,12 @@ function formatFixtures(upcomingGames){
     formattedFixtures += ['R'+game.round+'-'+game.home+'(H): '+game.away ];
     formattedFixtures += "\n"
     
-  }); 
+  });
+    
+  }else{
+    formattedFixtures += 'Tournament Finished!'
+  }
+   
   formattedFixtures += '```';
   return formattedFixtures;
 }
