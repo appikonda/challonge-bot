@@ -17,7 +17,8 @@ const client = challonge.createClient({
 const bot = new Telegraf(API_TOKEN);
 
 bot.start((ctx) => ctx.reply('Welcome!'));
-bot.hears('/table', async (ctx) => {
+
+bot.command('table', async (ctx) => {
   // implement me
   // step 1 - get players
   const players = await getPlayers();
@@ -31,7 +32,8 @@ bot.hears('/table', async (ctx) => {
   const formattedTable = formatTable(sortedTable, longestNameLength);
   ctx.replyWithMarkdown(formattedTable);
 });
-bot.hears('/results', async (ctx) => {
+
+bot.command('results', async (ctx) => {
   // implement me
   // step 1 - get players
   const players = await getPlayers();
@@ -46,7 +48,7 @@ bot.hears('/results', async (ctx) => {
   ctx.replyWithMarkdown(result);
 });
 
-bot.hears('/next', async (ctx) => {
+bot.command('next', async (ctx) => {
   // implement me
   // step 1 - get players
   const players = await getPlayers();
@@ -112,7 +114,7 @@ async function getTournament() {
 function getChampions(sortedTable){
    let results ="```"
    results += "\n"
-   results += "FIFA 20 League "
+   results += process.env.tournament_name
    results += "\n"
    results += "Champion: "+sortedTable[0].name;
    results += "\n"
@@ -239,7 +241,7 @@ function getFixtures(players, matches){
   let i =0
   for (let index of Object.keys(matches)){
     const match = matches[index].match;
-    if(i<5 && match.state == 'open' ){
+    if(i<6 && match.state == 'open' ){
       const firstPlayerName = getPlayerName(players, match.player1Id);
       const secondPlayerName = getPlayerName(players, match.player2Id);
       fixtures.push({home:firstPlayerName, away: secondPlayerName, round: match.round });
