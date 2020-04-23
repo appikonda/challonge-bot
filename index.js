@@ -35,16 +35,24 @@ bot.command('table', async (ctx) => {
 
 bot.command('results', async (ctx) => {
   // implement me
-  // step 1 - get players
-  const players = await getPlayers();
-  const playerDetails = buildPlayerDetails(players);
-  // step 2 - get matches
-  const matches = await getMatches();
-  // step 3 - mashup info
-  const table = getTable(matches, playerDetails);
-  const sortedTable = sortTable(table);
-  //const longestNameLength = findLongestNameLength(sortedTable);
-  const result = getChampions(sortedTable);
+  const tournament = await getTournament();
+  let  result ="";
+  if(!isTournamentCompleted(tournament)){
+    result = "``` "+process.env.incomplete_msg+" ```";
+  }
+  else{
+    // step 1 - get players
+    const players = await getPlayers();
+    const playerDetails = buildPlayerDetails(players);
+    // step 2 - get matches
+    const matches = await getMatches();
+     
+    // step 3 - mashup info
+    const table = getTable(matches, playerDetails);
+    const sortedTable = sortTable(table);
+    //const longestNameLength = findLongestNameLength(sortedTable);
+     result = getChampions(sortedTable);
+  }
   ctx.replyWithMarkdown(result);
 });
 
@@ -96,20 +104,7 @@ async function getMatches() {
   });
   
 }
-async function getTournament() {
-  return new Promise((resolve, reject) => {
-    client.tournaments.index({
-      //id: process.env.tournament_id,
-      callback: (err, tournament) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(tournament);
-        }
-      }
-    });
-  });
-}
+
 
 function getChampions(sortedTable){
    let results ="```"
@@ -283,6 +278,29 @@ function formatFixtures(upcomingGames){
   formattedFixtures += '```';
   return formattedFixtures;
 }
+
+//check if tournament completed or in progress
+function isTournamentCompleted(tournament){
+  console.log(tournament.tournament.progressMeter);
+  return tournament.tournament.progressMeter == 100
+}
+async function getTournament(){
+  return new Promise((resolve, reject) => {
+    client.tournaments.show({
+     id: process.env.tournament_id,
+     
+      callback: (err, tournament) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(tournament);
+        }
+      }
+    });
+  });
+}
+
+
 
 // and at the end just start server on PORT
 expressApp.get('/', (req, res) => {
