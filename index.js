@@ -153,13 +153,13 @@ function getTable( matches, playerDetails){
 
 function formatTable(sortedTable, longestNameLength){
   let formattedTable = '```';
-  formattedTable += '|  player  | w-d-l |gf|ga|pt|';
+  formattedTable += '|  player  |w-d-l|gf|ga|pt|';
   formattedTable += "\n";
-  formattedTable += '----------------------------';
+  formattedTable += '--------------------------';
   formattedTable += "\n";
   sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), leftPad(playerDetails.w)+'-'+playerDetails.d+'-'+rightPad(playerDetails.l), leftPad(playerDetails.gf), leftPad(playerDetails.ga), leftPad(playerDetails.pts)].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), (playerDetails.w)+'-'+playerDetails.d+'-'+(playerDetails.l), leftPad(playerDetails.gf), leftPad(playerDetails.ga), leftPad(playerDetails.pts)].join('|');
     formattedTable += '|';
     formattedTable += "\n";
   });
