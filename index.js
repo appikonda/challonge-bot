@@ -153,13 +153,13 @@ function getTable( matches, playerDetails){
 
 function formatTable(sortedTable, longestNameLength){
   let formattedTable = '```';
-  formattedTable += '|  player  |w-d-l|gf|ga|pt|';
+  formattedTable += '|  player  | w-d-l |gf|ga|pt|';
   formattedTable += "\n";
-  formattedTable += '---------------------------';
+  formattedTable += '----------------------------';
   formattedTable += "\n";
   sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), playerDetails.w+'-'+playerDetails.d+'-'+playerDetails.l, padInt(playerDetails.gf), padInt(playerDetails.ga), padInt(playerDetails.pts)].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), leftPad(playerDetails.w)+'-'+playerDetails.d+'-'+rightPad(playerDetails.l), leftPad(playerDetails.gf), leftPad(playerDetails.ga), leftPad(playerDetails.pts)].join('|');
     formattedTable += '|';
     formattedTable += "\n";
   });
@@ -227,9 +227,16 @@ function findLongestNameLength(playerDetails){
 }
 
 function padInt(number) {
-  return (number < 10 ? '0' : '') + number
+  return (number < 10 ? '0' : '') +number
 }
 
+function leftPad(number) {
+  return (number < 10 ? ' '+number : number) 
+}
+
+function rightPad(number) {
+  return (number < 10 ? number+' ' : number) 
+}
 
 function getFixtures(players, matches){
   let fixtures = [];
@@ -306,6 +313,9 @@ async function getTournament(){
 expressApp.get('/', (req, res) => {
   res.send('Hello World!');
 });
-expressApp.listen(PORT, () => {
+var server =expressApp.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+server.keepAliveTimeout = 30 * 1000;
+server.headersTimeout = 35 * 1000;
