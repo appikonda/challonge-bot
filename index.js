@@ -273,7 +273,7 @@ function formatFixtures(upcomingGames){
   formattedFixtures += "\n";
   
    upcomingGames.forEach((game) =>{
-    formattedFixtures += ['R'+game.round+'-'+game.home+'(H): '+game.away ];
+    formattedFixtures += ['R'+game.round+': '+game.home+' --> '+game.away ];
     formattedFixtures += "\n"
     
   });
