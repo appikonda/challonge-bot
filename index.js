@@ -5,7 +5,7 @@ const express = require('express');
 const expressApp = express();
 
 const challonge = require('challonge');
-const Telegraf = require('telegraf');
+const Telegraf = require('telegraf').Telegraf;
 
 const API_TOKEN = process.env.telegram_bot_key;
 const PORT = process.env.PORT 
@@ -87,7 +87,6 @@ async function getPlayers() {
 
 async function getMatches() {
   return new Promise((resolve, reject) => { 
-    
     client.matches.index({
       id: process.env.tournament_id,
       callback: function(error, matches){
@@ -96,25 +95,22 @@ async function getMatches() {
         }else{
           resolve(matches)
         }
-
       }
     });
-
-
   });
   
 }
 
 
 function getChampions(sortedTable){
-   let results ="```"
+   let results ="`"
    results += "\n"
    results += process.env.tournament_name
    results += "\n"
    results += "Champion: "+sortedTable[0].name;
    results += "\n"
    results += "Runner up: "+sortedTable[1].name;
-   results += "```"
+   results += "`"
   return (results)
 }
 
@@ -122,7 +118,7 @@ function buildPlayerDetails(players){
   const playerDetails = {};
   for(let index  of Object.keys(players)){
     const player = players[index].participant
-    playerDetails[player.id] = { name: player.name.split('(')[0], w: 0, l: 0, d: 0, ga: 0, gf: 0, gd: 0, pts: 0 };
+    playerDetails[player.id] = { name: player.name.split('(')[0].substring(0,8), w: 0, l: 0, d: 0, ga: 0, gf: 0, gd: 0, pts: 0 };
   }
   
 
@@ -152,18 +148,18 @@ function getTable( matches, playerDetails){
 }
 
 function formatTable(sortedTable, longestNameLength){
-  let formattedTable = '```';
-  formattedTable += '|  player  |w-d-l|gf|ga|pt|';
+  let formattedTable = '`';
+  formattedTable += '| player | w-d-l |gf|ga|pt|';
   formattedTable += "\n";
-  formattedTable += '--------------------------';
+  formattedTable += '---------------------------';
   formattedTable += "\n";
   sortedTable.forEach((playerDetails)=>{
     formattedTable += '|';
-    formattedTable +=  [playerDetails.name.padEnd(longestNameLength,' '), (playerDetails.w)+'-'+playerDetails.d+'-'+(playerDetails.l), leftPad(playerDetails.gf), leftPad(playerDetails.ga), leftPad(playerDetails.pts)].join('|');
+    formattedTable +=  [playerDetails.name.padEnd(longestNameLength), leftPad(playerDetails.w)+'-'+playerDetails.d+'-'+rightPad(playerDetails.l), leftPad(playerDetails.gf), leftPad(playerDetails.ga), leftPad(playerDetails.pts)].join('|');
     formattedTable += '|';
     formattedTable += "\n";
   });
-  formattedTable += '```';
+  formattedTable += '`';
   return formattedTable;
 }
 
@@ -265,15 +261,15 @@ function getPlayerName(players, pId){
 }
 
 function formatFixtures(upcomingGames){
-  let formattedFixtures = '```';
+  let formattedFixtures = '`';
   if(upcomingGames){
-    formattedFixtures += '  Upcoming Matches          ';
+    formattedFixtures += '  Upcoming Matches       ';
   formattedFixtures += "\n";
-  formattedFixtures += '---------------------------';
+  formattedFixtures += '-------------------------';
   formattedFixtures += "\n";
   
    upcomingGames.forEach((game) =>{
-    formattedFixtures += ['R'+game.round+': '+game.home+' --> '+game.away ];
+    formattedFixtures += ['R'+game.round+': '+game.home+'--> '+game.away ];
     formattedFixtures += "\n"
     
   });
@@ -282,7 +278,7 @@ function formatFixtures(upcomingGames){
     formattedFixtures += 'Tournament Finished!'
   }
    
-  formattedFixtures += '```';
+  formattedFixtures += '`';
   return formattedFixtures;
 }
 
@@ -307,8 +303,6 @@ async function getTournament(){
   });
 }
 
-
-
 // and at the end just start server on PORT
 expressApp.get('/', (req, res) => {
   res.send('Hello World!');
@@ -317,5 +311,4 @@ var server =expressApp.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-server.keepAliveTimeout = 30 * 1000;
-server.headersTimeout = 35 * 1000;
+
