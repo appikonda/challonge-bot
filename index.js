@@ -107,9 +107,13 @@ function getChampions(sortedTable){
    results += "\n"
    results += process.env.tournament_name
    results += "\n"
-   results += "Champion: "+sortedTable[0].name;
+   results += "--------------------"
    results += "\n"
-   results += "Runner up: "+sortedTable[1].name;
+   results += "🥇 "+sortedTable[0].name;
+   results += "\n"
+   results += "🥈 "+sortedTable[1].name;
+   results += "\n"
+   results += "🥉 "+sortedTable[2].name;
    results += "`"
   return (results)
 }
